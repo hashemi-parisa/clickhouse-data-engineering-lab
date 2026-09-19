@@ -1,0 +1,25 @@
+services:
+  clickhouse:
+    image: clickhouse/clickhouse-server:25.8
+    container_name: clickhouse-lab
+    restart: unless-stopped
+
+    ports:
+      - "8123:8123"
+      - "19000:9000"
+
+    env_file:
+      - .env
+
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+      - ./clickhouse/init:/docker-entrypoint-initdb.d
+
+    healthcheck:
+      test: ["CMD-SHELL", "clickhouse-client --user $$CLICKHOUSE_USER --password $$CLICKHOUSE_PASSWORD --query 'SELECT 1'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  clickhouse_data:
